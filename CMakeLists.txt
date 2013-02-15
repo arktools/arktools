@@ -48,6 +48,10 @@ find_package(OpenGL REQUIRED)
 find_package(OpenSceneGraph ${OPENSCENEGRAPH_REQUIRED_VERSION} REQUIRED COMPONENTS osgViewer osgUtil osgDB osgGA osgManipulator)
 find_package(OsgPlugin ${OPENSCENEGRAPH_REQUIRED_VERSION} REQUIRED COMPONENTS ac rgb)
 
+# config files
+configure_file(config.h.in config.h)
+install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION include/${PROJECT_NAME} COMPONENT Dev)
+
 # build settings
 add_definitions(-DOSG_LIBRARY_STATIC)
 

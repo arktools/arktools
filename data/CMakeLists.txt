@@ -1,2 +1,2 @@
-install(DIRECTORY images DESTINATION share/${PROJECT_NAME})
-install(DIRECTORY models DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY images DESTINATION share/${PROJECT_NAME} COMPONENT Runtime)
+install(DIRECTORY models DESTINATION share/${PROJECT_NAME} COMPONENT Runtime)

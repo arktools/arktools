@@ -55,5 +55,5 @@ add_library(arktools_core SHARED
     ${ARKTOOLS_CORE_SRCS}
     )
 
-install(TARGETS arktools_core DESTINATION lib )
-install(FILES ${ARKTOOLS_CORE_HDRS} DESTINATION include/${PROJECT_NAME})
+install(TARGETS arktools_core DESTINATION lib COMPONENT Runtime)
+install(FILES ${ARKTOOLS_CORE_HDRS} DESTINATION include/${PROJECT_NAME} COMPONENT Dev)
