@@ -54,5 +54,8 @@ add_definitions(-DOSG_LIBRARY_STATIC)
 # library
 add_subdirectory(src)
 
+# data
+add_subdirectory(data)
+
 # test
 add_subdirectory(test)
