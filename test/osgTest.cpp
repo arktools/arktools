@@ -1,24 +1,9 @@
 #include "Viewer.hpp"
 #include "osgUtils.hpp"
 
-#include <osgGA/TrackballManipulator>
-
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/thread.hpp> 
-
-// Static linking of OSG needs special macros
-#ifdef OSG_LIBRARY_STATIC
-#include <osgDB/Registry>
-
-#if defined(__APPLE__) 
-    USE_GRAPICSWINDOW_IMPLEMENTATION(Cocoa) 
-#else 
-    USE_GRAPHICSWINDOW() 
-#endif 
-
-USE_OSGPLUGIN(rgb);
-USE_OSGPLUGIN(ac);
-#endif
+#include <osgGA/TrackballManipulator>
 
 int main(int argc, char * argv[]) {
     if (argc != 2) {
@@ -27,10 +12,9 @@ int main(int argc, char * argv[]) {
     }
     std::string dataDir(argv[1]);
     Viewer viewer;
-    viewer.setUpViewInWindow(0,0,640,480);
+    viewer.setUpViewInWindow(0,0,400,400);
     viewer.setCameraManipulator(new osgGA::TrackballManipulator);
     viewer.getCameraManipulator()->setHomePosition(osg::Vec3d(50,50,-50),osg::Vec3d(0,0,0),osg::Vec3d(0,0,-1),false);
-
     osg::Group * sceneRoot = new osg::Group;
     viewer.setSceneData(sceneRoot);
     sceneRoot->addChild(new Frame(20,"N","E","D"));

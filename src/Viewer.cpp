@@ -20,6 +20,20 @@
 #include <boost/bind.hpp>
 #include <osgGA/TrackballManipulator>
 
+// Static linking of OSG needs special macros
+#ifdef OSG_LIBRARY_STATIC
+#include <osgDB/Registry>
+
+#if defined(__APPLE__) 
+    USE_GRAPICSWINDOW_IMPLEMENTATION(Cocoa) 
+#else 
+    USE_GRAPHICSWINDOW() 
+#endif 
+
+USE_OSGPLUGIN(rgb);
+USE_OSGPLUGIN(ac);
+#endif
+
 Viewer::Viewer(int fps) :
     myThread(), myMutex(), myFps(fps)
 {
@@ -72,6 +86,7 @@ VisCar::VisCar(char* model, char * texture) : car(new Car(std::string(model)))
                                             osg::Vec3(0,0,0),osg::Vec3(0,0,-1));
     if (root) setSceneData(root);
     setUpViewInWindow(0,0,400,400);
+    setCameraManipulator(new osgGA::TrackballManipulator);
     run();
 }
 

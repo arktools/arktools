@@ -18,6 +18,7 @@
 
 #ifndef Viewer_HPP
 #define Viewer_HPP
+
 #include <osgViewer/Viewer>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
