@@ -50,15 +50,21 @@ VisCar::~VisCar() {
 }
 
 void VisCar::setEuler(double roll, double pitch, double yaw) {
+    _impl->lock();
     _impl->car->setEuler(roll, pitch, yaw);
+    _impl->unlock();
 };
 
 void VisCar::setPosition(double x, double y, double z) {
+    _impl->lock();
     _impl->car->setPositionScalars(x, y, z);
+    _impl->unlock();
 };
 
 void VisCar::setU(double throttle, double steering) {
+    _impl->lock();
     _impl->car->setU(throttle, steering);
+    _impl->unlock();
 };
 
 
