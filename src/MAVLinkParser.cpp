@@ -24,13 +24,13 @@
 
 class MAVLinkParser::Impl {
 public:
-    Impl(const uint8_t sysid, const uint8_t compid, const MAV_TYPE type,
+    Impl(const uint8_t sysid, const uint8_t compid,
         const std::string & device, const uint32_t baudRate) : 
     _system(), _status(), _comm() {
         // system
         _system.sysid = sysid;
         _system.compid = compid;
-        _system.type = type;
+        _system.type = MAV_TYPE_GENERIC;
 
         // start comm
         // throws boost::system::system_error
@@ -152,9 +152,9 @@ private:
     }
 };
 
-MAVLinkParser::MAVLinkParser(const uint8_t sysid, const uint8_t compid, uint16_t type,
+MAVLinkParser::MAVLinkParser(const uint8_t sysid, const uint8_t compid,
         const std::string & device, const uint32_t baudRate) : 
-        _impl(new Impl(sysid, compid, (MAV_TYPE)type, device, baudRate)) {
+        _impl(new Impl(sysid, compid, device, baudRate)) {
 }
 
 MAVLinkParser::~MAVLinkParser() {

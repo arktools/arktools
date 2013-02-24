@@ -14,6 +14,7 @@ set(CPACK_SOURCE_GENERATOR "ZIP")
 set(PLIB_REQUIRED_VERSION                   1.8.5) # joystick 
 set(BOOST_REQUIRED_VERSION                  1.4.2) # math, serial
 set(OPENSCENEGRAPH_REQUIRED_VERSION         3.0.0) # 3D graphics
+set(MAVLINK_REQUIRED_VERSION                1.0.0) # MAVLink comm protocol
 
 # options
 option(WITH_PREFER_STATIC "Prefer static linking." ON)
@@ -49,6 +50,7 @@ find_program(SCILAB_ADV_CLI scilab-adv-cli)
 find_package(OpenGL REQUIRED)
 find_package(OpenSceneGraph ${OPENSCENEGRAPH_REQUIRED_VERSION} REQUIRED COMPONENTS osgViewer osgUtil osgDB osgGA osgManipulator)
 find_package(OsgPlugin ${OPENSCENEGRAPH_REQUIRED_VERSION} REQUIRED COMPONENTS ac rgb)
+find_package(MAVLink ${MAVLINK_REQUIRED_VERSION} REQUIRED)
 
 # config files
 configure_file(config.h.in config.h)

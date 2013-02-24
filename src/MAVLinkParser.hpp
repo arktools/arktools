@@ -24,7 +24,7 @@
 
 class MAVLinkParser {
 public:
-    MAVLinkParser(const uint8_t sysid, const uint8_t compid, const uint16_t type,
+    MAVLinkParser(const uint8_t sysid, const uint8_t compid,
             const std::string & device, const uint32_t baudRate);
     ~MAVLinkParser();
 
