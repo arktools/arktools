@@ -17,127 +17,156 @@
  */
 
 #include "MAVLinkParser.hpp"
+#include "private/AsyncSerial.hpp"
+#include <mavlink/v1.0/common/mavlink.h>
+#include <iostream>
+#include <stdexcept>
 
-void MAVLinkParser::_sendMessage(const mavlink_message_t & msg) {
-    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-    uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
-    _comm->write((const char *)buf, len);
-}
-
-MAVLinkParser::MAVLinkParser(const uint8_t sysid, const uint8_t compid, const MAV_TYPE type,
+class MAVLinkParser::Impl {
+public:
+    Impl(const uint8_t sysid, const uint8_t compid, const MAV_TYPE type,
         const std::string & device, const uint32_t baudRate) : 
     _system(), _status(), _comm() {
-      
-    // system
-    _system.sysid = sysid;
-    _system.compid = compid;
-    _system.type = type;
+        // system
+        _system.sysid = sysid;
+        _system.compid = compid;
+        _system.type = type;
 
-    // start comm
-    // throws boost::system::system_error
-    _comm = new BufferedAsyncSerial(device,baudRate);
-}
-
-MAVLinkParser::~MAVLinkParser() {
-    if (_comm)
-    {
-        delete _comm;
-        _comm = NULL;
+        // start comm
+        // throws boost::system::system_error
+        _comm = new BufferedAsyncSerial(device, baudRate);
     }
-}
-
-void MAVLinkParser::send(double * u, uint64_t timeStamp) {
-    // attitude states (rad)
-    float roll = u[0];
-    float pitch = u[1];
-    float yaw = u[2];
-
-    // body rates
-    float rollRate = u[3];
-    float pitchRate = u[4];
-    float yawRate = u[5];
-
-    // position
-    int32_t lat = u[6]*_rad2deg*1e7;
-    int32_t lon = u[7]*_rad2deg*1e7;
-    int16_t alt = u[8]*1e3;
-
-    int16_t vx = u[9]*1e2;
-    int16_t vy = u[10]*1e2;
-    int16_t vz = u[11]*1e2;
-
-    int16_t xacc = u[12]*1e3/_g0;
-    int16_t yacc = u[13]*1e3/_g0;
-    int16_t zacc = u[14]*1e3/_g0;
-
-    mavlink_message_t msg;
-    mavlink_msg_hil_state_pack(_system.sysid, _system.compid, &msg, 
-        timeStamp,
-        roll,pitch,yaw,
-        rollRate,pitchRate,yawRate,
-        lat,lon,alt,
-        vx,vy,vz,
-        xacc,yacc,zacc);
-    _sendMessage(msg);
-}
-
-void MAVLinkParser::receive(double * y) {
-    // receive messages
-    mavlink_message_t msg;
-    while(_comm->available())
-    {
-
-        uint8_t c = 0;
-        if (!_comm->read((char*)&c,1)) return;
-
-        // try to get new message
-        if(mavlink_parse_char(MAVLINK_COMM_0,c,&msg,&_status))
+    ~Impl() {
+        if (_comm)
         {
-            switch(msg.msgid)
+            delete _comm;
+            _comm = NULL;
+        }
+    }
+    void send(double * u, uint64_t timeStamp) {
+        // attitude states (rad)
+        float roll = u[0];
+        float pitch = u[1];
+        float yaw = u[2];
+
+        // body rates
+        float rollRate = u[3];
+        float pitchRate = u[4];
+        float yawRate = u[5];
+
+        // position
+        int32_t lat = u[6]*_rad2deg*1e7;
+        int32_t lon = u[7]*_rad2deg*1e7;
+        int16_t alt = u[8]*1e3;
+
+        int16_t vx = u[9]*1e2;
+        int16_t vy = u[10]*1e2;
+        int16_t vz = u[11]*1e2;
+
+        int16_t xacc = u[12]*1e3/_g0;
+        int16_t yacc = u[13]*1e3/_g0;
+        int16_t zacc = u[14]*1e3/_g0;
+
+        mavlink_message_t msg;
+        mavlink_msg_hil_state_pack(_system.sysid, _system.compid, &msg, 
+            timeStamp,
+            roll,pitch,yaw,
+            rollRate,pitchRate,yawRate,
+            lat,lon,alt,
+            vx,vy,vz,
+            xacc,yacc,zacc);
+        _sendMessage(msg);
+    }
+
+    void receive(double * y) {
+        // receive messages
+        mavlink_message_t msg;
+        while(_comm->available())
+        {
+
+            uint8_t c = 0;
+            if (!_comm->read((char*)&c,1)) return;
+
+            // try to get new message
+            if(mavlink_parse_char(MAVLINK_COMM_0,c,&msg,&_status))
             {
-
-                // this packet seems to me more constrictive so I
-                // recommend using rc channels scaled instead
-                case MAVLINK_MSG_ID_HIL_CONTROLS:
+                switch(msg.msgid)
                 {
-                    //std::cout << "receiving hil controls packet" << std::endl;
-                    mavlink_hil_controls_t packet;
-                    mavlink_msg_hil_controls_decode(&msg,&packet);
-                    y[0] = packet.roll_ailerons;
-                    y[1] = packet.pitch_elevator;
-                    y[2] = packet.yaw_rudder;
-                    y[3] = packet.throttle;
-                    y[4] = packet.mode;
-                    y[5] = packet.nav_mode;
-                    y[6] = 0;
-                    y[7] = 0;
-                    break;
+
+                    // this packet seems to me more constrictive so I
+                    // recommend using rc channels scaled instead
+                    case MAVLINK_MSG_ID_HIL_CONTROLS:
+                    {
+                        //std::cout << "receiving hil controls packet" << std::endl;
+                        mavlink_hil_controls_t packet;
+                        mavlink_msg_hil_controls_decode(&msg,&packet);
+                        y[0] = packet.roll_ailerons;
+                        y[1] = packet.pitch_elevator;
+                        y[2] = packet.yaw_rudder;
+                        y[3] = packet.throttle;
+                        y[4] = packet.mode;
+                        y[5] = packet.nav_mode;
+                        y[6] = 0;
+                        y[7] = 0;
+                        break;
+                    }
+
+                    case MAVLINK_MSG_ID_RC_CHANNELS_SCALED:
+                    {
+                        //std::cout << "receiving rc channels scaled packet" << std::endl;
+                        mavlink_rc_channels_scaled_t packet;
+                        mavlink_msg_rc_channels_scaled_decode(&msg,&packet);
+                        y[0] = packet.chan1_scaled/1.0e4;
+                        y[1] = packet.chan2_scaled/1.0e4;
+                        y[2] = packet.chan3_scaled/1.0e4;
+                        y[3] = packet.chan4_scaled/1.0e4;
+                        y[4] = packet.chan5_scaled/1.0e4;
+                        y[5] = packet.chan6_scaled/1.0e4;
+                        y[6] = packet.chan7_scaled/1.0e4;
+                        y[7] = packet.chan8_scaled/1.0e4;
+                        break;
+                    } 
+
+                    default:
+                    {
+                        //std::cout << "received message: " << uint32_t(msg.msgid) << std::endl;
+                    }
+
                 }
-
-                case MAVLINK_MSG_ID_RC_CHANNELS_SCALED:
-                {
-                    //std::cout << "receiving rc channels scaled packet" << std::endl;
-                    mavlink_rc_channels_scaled_t packet;
-                    mavlink_msg_rc_channels_scaled_decode(&msg,&packet);
-                    y[0] = packet.chan1_scaled/1.0e4;
-                    y[1] = packet.chan2_scaled/1.0e4;
-                    y[2] = packet.chan3_scaled/1.0e4;
-                    y[3] = packet.chan4_scaled/1.0e4;
-                    y[4] = packet.chan5_scaled/1.0e4;
-                    y[5] = packet.chan6_scaled/1.0e4;
-                    y[6] = packet.chan7_scaled/1.0e4;
-                    y[7] = packet.chan8_scaled/1.0e4;
-                    break;
-                } 
-
-                default:
-                {
-                    //std::cout << "received message: " << uint32_t(msg.msgid) << std::endl;
-                }
-
             }
         }
     }
+private:
+    // private attributes
+    mavlink_system_t _system;
+    mavlink_status_t _status;
+    BufferedAsyncSerial * _comm;
+    static const double _rad2deg = 180.0/3.14159;
+    static const double _g0 = 9.81;
+    // private methods
+    // send a mavlink message to the comm port
+    void _sendMessage(const mavlink_message_t & msg) {
+        uint8_t buf[MAVLINK_MAX_PACKET_LEN];
+        uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
+        _comm->write((const char *)buf, len);
+    }
+};
+
+MAVLinkParser::MAVLinkParser(const uint8_t sysid, const uint8_t compid, uint16_t type,
+        const std::string & device, const uint32_t baudRate) : 
+        _impl(new Impl(sysid, compid, (MAV_TYPE)type, device, baudRate)) {
+}
+
+MAVLinkParser::~MAVLinkParser() {
+    if (_impl) delete _impl;
+}
+
+void MAVLinkParser::send(double * u, uint64_t timeStamp) {
+    _impl->send(u, timeStamp);
+}
+
+void MAVLinkParser::receive(double * y) {
+    _impl->receive(y);
 }
 
 // vim:ts=4:sw=4:expandtab

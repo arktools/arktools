@@ -16,10 +16,12 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "utilities.hpp"
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <boost/thread.hpp>
+
+#include "utilities.hpp"
 
 void getIpars(int nStrings, int nInts, int * ipar, char *** stringArray, int ** intArray)
 {
@@ -63,6 +65,10 @@ void getIpars(int nStrings, int nInts, int * ipar, char *** stringArray, int ** 
         (*intArray)[i] = ipar[iInt];
         iInt = iInt + 1;
     }
+}
+
+void sleepMillis(int millis) {
+    boost::this_thread::sleep(boost::posix_time::milliseconds(millis));
 }
 
 int evtPortNumToFlag(int portNum)

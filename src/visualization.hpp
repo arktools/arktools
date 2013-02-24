@@ -1,5 +1,5 @@
 /*
- * Joystick.hpp
+ * visualization.hpp
  * Copyright (C) James Goppert 2010 <jgoppert@users.sourceforge.net>
  *
  * This file is free software: you can redistribute it and/or modify it
@@ -14,35 +14,28 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * y: vector of axis values
  */
 
-#ifndef _ARKTOOLS_JOYSTICK_HPP
-#define _ARKTOOLS_JOYSTICK_HPP
+#ifndef VISUALIZATION_HPP
+#define VISUALIZATION_HPP
 
-#include <string.h>
-#include <stdexcept>
-#include <iostream>
+#include <string>
 
-class jsJoystick;
-
-class Joystick {
+class VisCar {
 public:
-    Joystick(int portNumber);
-    void read(double * y);
-    int getNumAxes();
-    int getPortNumber();
-    bool getEnabled();
+    VisCar(std::string dataPath);
+    ~VisCar();
+    void setEuler(double roll, double pitch, double yaw);
+    void setPosition(double x, double y, double z);
+    void setU(double throttle, double steering);
 private:
-    static bool _jsInitialized;
-    bool _enabled;;
-    jsJoystick * _joystick;
-    int _portNumber;
-    void checkJoystick();
-    void setPortNumber(int portNumber);
+    class Impl;
+    Impl * _impl;
+    // disable copy ctors
+    VisCar(const VisCar & other);
+    VisCar & operator=(const VisCar & other);
 };
 
-#endif // _ARKTOOLS_JOYSTICK_HPP
+#endif
 
 // vim:ts=4:sw=4

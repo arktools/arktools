@@ -35,21 +35,26 @@ endif()
 
 set(ARKTOOLS_CORE_HDRS
     Joystick.hpp
-    AsyncSerial.hpp
     MAVLinkParser.hpp
     utilities.hpp
-    Viewer.hpp
-    osgUtils.hpp
+    visualization.hpp
     )
 
 set(ARKTOOLS_CORE_SRCS
     Joystick.cpp
-    AsyncSerial.cpp
     MAVLinkParser.cpp
     utilities.cpp
-    terrain.cpp
-    Viewer.cpp
-    osgUtils.cpp
+    visualization.cpp
+    private/Viewer.cpp
+    private/Viewer.hpp
+    private/AsyncSerial.cpp
+    private/AsyncSerial.hpp
+    private/terrain.cpp
+    private/terrain_coords.h
+    private/terrain_normals.h
+    private/terrain_texcoords.h
+    private/osgUtils.cpp
+    private/osgUtils.hpp
     )
 
 add_library(arktools_core SHARED

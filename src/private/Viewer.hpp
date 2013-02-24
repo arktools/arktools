@@ -60,13 +60,6 @@ private:
     int myFps; // Approxmiate frames per second, neglects framing time
 };
 
-class VisCar : public Viewer
-{
-public:
-    VisCar(char* model, char * texture);
-    Car * car;
-};
-
 #endif
 
 // vim:ts=4:sw=4

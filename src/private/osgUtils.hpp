@@ -82,7 +82,7 @@ public:
         const osg::Vec3 & center,
         osg::Node * root);
     void setAttitude(osg::Quat quat);
-    void setPosition(double x, double y, double z);
+    void setPositionScalars(double x, double y, double z);
 private:
     osg::PositionAttitudeTransform * myPat;
     osg::Vec3 myCenter;

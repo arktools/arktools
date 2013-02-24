@@ -18,6 +18,8 @@
  * y: vector of axis values
  */
 
+#include <plib/js.h>
+
 #include "Joystick.hpp"
 
 Joystick::Joystick(int portNumber) : _joystick(NULL), _portNumber(0), _enabled(false) {

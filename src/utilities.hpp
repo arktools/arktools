@@ -19,11 +19,11 @@
 #ifndef _ARKTOOLS_UTILITIES_HPP
 #define _ARKTOOLS_UTILITIES_HPP
 
-#include <boost/numeric/ublas/matrix.hpp>
-
 void getIpars(int nStrings, int nInts, int * ipar, char *** stringArray, int ** intArray);
 
 int evtPortNumToFlag(int portNum);
+
+void sleepMillis(int millis);
 
 extern "C"
 {

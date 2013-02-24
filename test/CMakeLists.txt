@@ -5,8 +5,5 @@ include_directories(
 
 link_libraries(arktools_core)
 
-add_executable(osgTest
-    osgTest.cpp
-    )
-
-add_test(OsgTest ${CMAKE_CURRENT_BINARY_DIR}/osgTest ${CMAKE_SOURCE_DIR}/data)
+add_executable(car car.cpp)
+add_test(car ${CMAKE_CURRENT_BINARY_DIR}/car ${CMAKE_SOURCE_DIR}/data)

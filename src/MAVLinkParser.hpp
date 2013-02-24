@@ -19,36 +19,23 @@
 #ifndef _ARKTOOLBOX_MAVLINKPARSER_HPP
 #define _ARKTOOLBOX_MAVLINKPARSER_HPP
 
-#include "AsyncSerial.hpp"
-#include <iostream>
-#include <stdexcept>
-
-// mavlink system definition and headers
-#include <mavlink/v1.0/common/mavlink.h>
+#include <inttypes.h>
+#include <string>
 
 class MAVLinkParser {
-
-private:
-
-    // private attributes
-    
-    mavlink_system_t _system;
-    mavlink_status_t _status;
-    BufferedAsyncSerial * _comm;
-    static const double _rad2deg = 180.0/3.14159;
-    static const double _g0 = 9.81;
-
-    // private methods
-    
-    // send a mavlink message to the comm port
-    void _sendMessage(const mavlink_message_t & msg);
-
 public:
-    MAVLinkParser(const uint8_t sysid, const uint8_t compid, const MAV_TYPE type,
+    MAVLinkParser(const uint8_t sysid, const uint8_t compid, const uint16_t type,
             const std::string & device, const uint32_t baudRate);
     ~MAVLinkParser();
+
     void send(double * u, uint64_t timeStamp);
     void receive(double * y);
+private:
+    class Impl;
+    Impl * _impl;
+    // disable copy ctors
+    MAVLinkParser(const MAVLinkParser & other);
+    MAVLinkParser & operator=(const MAVLinkParser & other);
 };
 
 #endif // _ARKTOOLBOX_MAVLINKPARSER_HPP

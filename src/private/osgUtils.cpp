@@ -182,7 +182,7 @@ void Actuator::setAttitude(osg::Quat quat)
     myPat->setAttitude(quat);
 }
 
-void Actuator::setPosition(double x, double y, double z)
+void Actuator::setPositionScalars(double x, double y, double z)
 {
     myPat->setPosition(osg::Vec3(x,y,z)+myCenter);
 }
@@ -432,7 +432,7 @@ void Jet::setU(double throttle, double aileron, double elevator, double rudder)
     myLeftElevator->setAttitude(osg::Quat(elevator,osg::Vec3(0,0,1)));
     myRightElevator->setAttitude(osg::Quat(elevator,osg::Vec3(0,0,1)));
     myRudder->setAttitude(osg::Quat(rudder,osg::Vec3(0,1,0)));
-	myThrustPlume->setPosition(3-3*throttle,0,0);
+	myThrustPlume->setPositionScalars(3-3*throttle,0,0);
 }
 
 Plane::Plane(std::string modelFile) :
