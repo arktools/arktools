@@ -26,6 +26,8 @@ if (APPLE)
     link_libraries(
         ${COREFOUNDATION_LIBRARY}
         ${IOKIT_LIBRARY}
+        ${COCOA_LIBRARY}
+        ${CARBON_LIBRARY}
         )
 elseif(UNIX)
     link_libraries(rt Xrandr)

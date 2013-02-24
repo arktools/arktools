@@ -3,7 +3,6 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/thread.hpp> 
-#include <osgGA/TrackballManipulator>
 
 int main(int argc, char * argv[]) {
     if (argc != 2) {
@@ -13,7 +12,6 @@ int main(int argc, char * argv[]) {
     std::string dataDir(argv[1]);
     Viewer viewer;
     viewer.setUpViewInWindow(0,0,400,400);
-    viewer.setCameraManipulator(new osgGA::TrackballManipulator);
     viewer.getCameraManipulator()->setHomePosition(osg::Vec3d(50,50,-50),osg::Vec3d(0,0,0),osg::Vec3d(0,0,-1),false);
     osg::Group * sceneRoot = new osg::Group;
     viewer.setSceneData(sceneRoot);
@@ -25,10 +23,9 @@ int main(int argc, char * argv[]) {
     plane->addChild(new Frame(15,"X","Y","Z"));
     sceneRoot->addChild(plane);
 
-    viewer.realize();
+    viewer.run();
 
     for (int i=0;i<1000;i++) {
-        viewer.frame();
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
         float t= i/1000.0;
         float period = 1; // seconds
@@ -46,7 +43,6 @@ int main(int argc, char * argv[]) {
         plane->setEuler(phi,theta,psi);
         plane->setU(throttle,aileron,elevator,rudder);
     }
-
     return 0;
 }
 
