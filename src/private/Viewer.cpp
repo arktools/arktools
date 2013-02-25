@@ -35,7 +35,7 @@ USE_OSGPLUGIN(ac);
 #endif
 
 Viewer::Viewer(int fps) :
-    myThread(), myMutex(), myFps(fps)
+    myMutex(), myFps(fps)
 {
     using namespace osgViewer;
     setThreadSafeReferenceCounting(true);
@@ -45,18 +45,11 @@ Viewer::Viewer(int fps) :
 Viewer::~Viewer()
 {
     setDone(true);
-    if (myThread) myThread->join();
 }
 
 int Viewer::run()
 {
     realize();
-    myThread.reset(new boost::thread(boost::bind(&Viewer::loop,this)));
-    return 0;
-}
-
-void Viewer::loop()
-{
     while (!done())
     {
         lock();

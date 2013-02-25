@@ -46,6 +46,7 @@ public:
         _viewer->run();
     }
     ~Impl() {
+        _viewer->setDone(true);
         if (_thread) _thread->join();
     }
     osg::ref_ptr<Car> car;

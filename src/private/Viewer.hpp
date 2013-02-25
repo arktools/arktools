@@ -43,10 +43,6 @@ public:
      */
     int run();
     /**
-     * Function to frame viewer
-     */
-    void loop();
-    /**
      * Unlock the mutex and allow the viewer to frame
      */
     void unlock();
@@ -55,7 +51,6 @@ public:
      */
     void lock();
 private:
-    boost::scoped_ptr<boost::thread> myThread; // viewer thread
     boost::mutex myMutex; // mutex lock to protect data for multi-threading
     int myFps; // Approxmiate frames per second, neglects framing time
 };

@@ -16,6 +16,7 @@ int main(int argc, char * argv[]) {
     float period = 3; // seconds
     float dt = 0.001;
     for (float t=0;t<period;t+=0.001) {
+        std::cout << "t: " << t << std::endl;
         sleepMillis(dt*1000);
         float phi = 0.5*sin(2*M_PI/period*t);
         float theta = 0.5*sin(2*M_PI/period*t);
