@@ -28,7 +28,7 @@ public:
     void setEuler(double roll, double pitch, double yaw);
     void setPosition(double x, double y, double z);
     void setU(double throttle, double steering);
-    void run();
+    void frame();
 private:
     class Impl;
     Impl * _impl;

@@ -45,8 +45,6 @@ set(ARKTOOLS_CORE_SRCS
     MAVLinkParser.cpp
     utilities.cpp
     visualization.cpp
-    private/Viewer.cpp
-    private/Viewer.hpp
     private/AsyncSerial.cpp
     private/AsyncSerial.hpp
     private/terrain.cpp

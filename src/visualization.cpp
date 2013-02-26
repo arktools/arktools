@@ -17,39 +17,46 @@
  */
 
 #include <osgGA/TrackballManipulator>
+#include <osgViewer/Viewer>
 
 #include "visualization.hpp"
 #include "private/osgUtils.hpp"
-#include "private/Viewer.hpp"
 
-class VisCar::Impl : public ViewerThread {
+// Static linking of OSG needs special macros
+#ifdef OSG_LIBRARY_STATIC
+#include <osgDB/Registry>
+
+#if defined(__APPLE__) 
+    USE_GRAPICSWINDOW_IMPLEMENTATION(Cocoa) 
+#else 
+    USE_GRAPHICSWINDOW() 
+#endif 
+
+USE_OSGPLUGIN(rgb);
+USE_OSGPLUGIN(ac);
+#endif
+
+
+
+class VisCar::Impl : public osgViewer::Viewer {
 public:
     Impl(std::string dataPath) :
-        _dataPath(dataPath),
-        _car(),
-        _viewer()
+        _car(NULL)
     {
-    }
-    virtual void run() {
-        _viewer = new Viewer;
-        _car = new Car(_dataPath+"/models/rcTruck.ac");
-        std::string texturePath = _dataPath+"/images/lz.rgb";
+        _car = new Car(dataPath+"/models/rcTruck.ac");
+        std::string texturePath = dataPath+"/images/lz.rgb";
         osg::Group * root = new Frame(1,"N","E","D");
         root->addChild(new Terrain(texturePath,osg::Vec3(10,10,0)));
         if (_car) root->addChild(_car);
-        _viewer->setCameraManipulator(new osgGA::TrackballManipulator);
-        _viewer->getCameraManipulator()->setHomePosition(
+        setCameraManipulator(new osgGA::TrackballManipulator);
+        getCameraManipulator()->setHomePosition(
                 osg::Vec3(-3,3,-3),
                 osg::Vec3(0,0,0),
                 osg::Vec3(0,0,-1));
-        _viewer->setSceneData(root);
-        _viewer->setUpViewInWindow(0,0,400,400);
-        _viewer->run();
+        setSceneData(root);
+        setUpViewInWindow(0,0,400,400);
     }
-    virtual ~Impl() {}
-    std::string _dataPath;
     osg::ref_ptr<Car> _car;
-    osg::ref_ptr<Viewer> _viewer;
 };
 
 VisCar::VisCar(std::string dataPath) :
@@ -57,32 +64,23 @@ VisCar::VisCar(std::string dataPath) :
 };
 
 VisCar::~VisCar() {
-    _impl->cancel();
     if (_impl) delete _impl;
 }
 
 void VisCar::setEuler(double roll, double pitch, double yaw) {
-    if (!(_impl->_viewer && _impl->_car)) return;
-    boost::mutex::scoped_lock lock(_impl->_viewer->mutex);
     _impl->_car->setEuler(roll, pitch, yaw);
 };
 
 void VisCar::setPosition(double x, double y, double z) {
-    if (!(_impl->_viewer && _impl->_car)) return;
-    boost::mutex::scoped_lock lock(_impl->_viewer->mutex);
     _impl->_car->setPositionScalars(x, y, z);
 };
 
 void VisCar::setU(double throttle, double steering) {
-    if (!(_impl->_viewer && _impl->_car)) return;
-    boost::mutex::scoped_lock lock(_impl->_viewer->mutex);
     _impl->_car->setU(throttle, steering);
 };
 
-void VisCar::run() {
-    if (_impl) _impl->startThread();
+void VisCar::frame() {
+    if (_impl) _impl->frame();
 }
-
-
 
 // vim:ts=4:sw=4
