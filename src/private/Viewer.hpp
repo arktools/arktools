@@ -36,23 +36,20 @@ public:
     /**
      * Constructor
      */
-    Viewer(int fps = 20);
+    Viewer();
     virtual ~Viewer();
-    /**
-     * Override default run to be mutex lockable
-     */
-    int run();
-    /**
-     * Unlock the mutex and allow the viewer to frame
-     */
-    void unlock();
-    /**
-     * Lock the mutex and prevent viewer from framing
-     */
-    void lock();
-private:
-    boost::mutex myMutex; // mutex lock to protect data for multi-threading
-    int myFps; // Approxmiate frames per second, neglects framing time
+    void frame(double simulationTime);
+    boost::mutex mutex; // mutex lock to protect data for multi-threading
+};
+
+class ViewerThread : public OpenThreads::Thread
+{
+public:
+    ViewerThread();
+    virtual ~ViewerThread();
+    int cancel();
+    virtual void run();
+    osg::ref_ptr<Viewer> _viewer;
 };
 
 #endif

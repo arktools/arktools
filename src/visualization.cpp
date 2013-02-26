@@ -22,20 +22,21 @@
 #include "private/osgUtils.hpp"
 #include "private/Viewer.hpp"
 
-class VisCar::Impl {
+class VisCar::Impl : public ViewerThread {
 public:
-    Impl(std::string dataPath) : 
-        car(new Car(dataPath+"/models/rcTruck.ac")),
-        _viewer(NULL),
+    Impl(std::string dataPath) :
         _dataPath(dataPath),
-        _thread(new boost::thread(boost::bind(&Impl::run,this))) {
+        _car(),
+        _viewer()
+    {
     }
-    void run() {
+    virtual void run() {
         _viewer = new Viewer;
+        _car = new Car(_dataPath+"/models/rcTruck.ac");
         std::string texturePath = _dataPath+"/images/lz.rgb";
         osg::Group * root = new Frame(1,"N","E","D");
         root->addChild(new Terrain(texturePath,osg::Vec3(10,10,0)));
-        if (car) root->addChild(car);
+        if (_car) root->addChild(_car);
         _viewer->setCameraManipulator(new osgGA::TrackballManipulator);
         _viewer->getCameraManipulator()->setHomePosition(
                 osg::Vec3(-3,3,-3),
@@ -45,15 +46,10 @@ public:
         _viewer->setUpViewInWindow(0,0,400,400);
         _viewer->run();
     }
-    ~Impl() {
-        _viewer->setDone(true);
-        if (_thread) _thread->join();
-    }
-    osg::ref_ptr<Car> car;
-    osg::ref_ptr<Viewer> _viewer;
-private:
+    virtual ~Impl() {}
     std::string _dataPath;
-    boost::scoped_ptr<boost::thread> _thread; // viewer thread
+    osg::ref_ptr<Car> _car;
+    osg::ref_ptr<Viewer> _viewer;
 };
 
 VisCar::VisCar(std::string dataPath) :
@@ -61,29 +57,31 @@ VisCar::VisCar(std::string dataPath) :
 };
 
 VisCar::~VisCar() {
+    _impl->cancel();
     if (_impl) delete _impl;
 }
 
 void VisCar::setEuler(double roll, double pitch, double yaw) {
-    if (!(_impl->_viewer && _impl->car)) return;
-    _impl->_viewer->lock();
-    _impl->car->setEuler(roll, pitch, yaw);
-    _impl->_viewer->unlock();
+    if (!(_impl->_viewer && _impl->_car)) return;
+    boost::mutex::scoped_lock lock(_impl->_viewer->mutex);
+    _impl->_car->setEuler(roll, pitch, yaw);
 };
 
 void VisCar::setPosition(double x, double y, double z) {
-    if (!(_impl->_viewer && _impl->car)) return;
-    _impl->_viewer->lock();
-    _impl->car->setPositionScalars(x, y, z);
-    _impl->_viewer->unlock();
+    if (!(_impl->_viewer && _impl->_car)) return;
+    boost::mutex::scoped_lock lock(_impl->_viewer->mutex);
+    _impl->_car->setPositionScalars(x, y, z);
 };
 
 void VisCar::setU(double throttle, double steering) {
-    if (!(_impl->_viewer && _impl->car)) return;
-    _impl->_viewer->lock();
-    _impl->car->setU(throttle, steering);
-    _impl->_viewer->unlock();
+    if (!(_impl->_viewer && _impl->_car)) return;
+    boost::mutex::scoped_lock lock(_impl->_viewer->mutex);
+    _impl->_car->setU(throttle, steering);
 };
+
+void VisCar::run() {
+    if (_impl) _impl->startThread();
+}
 
 
 

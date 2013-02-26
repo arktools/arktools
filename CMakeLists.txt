@@ -48,7 +48,7 @@ endif()
 find_package(Threads)
 find_program(SCILAB_ADV_CLI scilab-adv-cli)
 find_package(OpenGL REQUIRED)
-find_package(OpenSceneGraph ${OPENSCENEGRAPH_REQUIRED_VERSION} REQUIRED COMPONENTS osgViewer osgUtil osgDB osgGA osgManipulator)
+find_package(OpenSceneGraph ${OPENSCENEGRAPH_REQUIRED_VERSION} REQUIRED COMPONENTS osgViewer osgText osgUtil osgDB osgGA osgManipulator)
 find_package(OsgPlugin ${OPENSCENEGRAPH_REQUIRED_VERSION} REQUIRED COMPONENTS ac rgb)
 find_package(MAVLink ${MAVLINK_REQUIRED_VERSION} REQUIRED)
 

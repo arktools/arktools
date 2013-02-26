@@ -34,39 +34,43 @@ USE_OSGPLUGIN(rgb);
 USE_OSGPLUGIN(ac);
 #endif
 
-Viewer::Viewer(int fps) :
-    myMutex(), myFps(fps)
+Viewer::Viewer() :
+    osgViewer::Viewer(), mutex()
 {
     using namespace osgViewer;
-    setThreadSafeReferenceCounting(true);
-    setThreadSafeRefUnref(true);
+//    setThreadSafeReferenceCounting(true);
+//    setThreadSafeRefUnref(true);
+    _runMaxFrameRate = 20;
 }
 
 Viewer::~Viewer()
 {
-    setDone(true);
 }
 
-int Viewer::run()
+void Viewer::frame(double simulationTime)
 {
-    realize();
-    while (!done())
-    {
-        lock();
-        frame();
-        unlock();
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1000/myFps));
+    boost::mutex::scoped_lock lock(mutex);
+    osgViewer::Viewer::frame(simulationTime);
+}
+
+ViewerThread::ViewerThread() {
+}
+
+ViewerThread::~ViewerThread() {
+    cancel();
+    while (isRunning()) {
+        OpenThreads::Thread::YieldCurrentThread();
     }
 }
 
-void Viewer::lock()
-{
-    myMutex.lock();
+int ViewerThread::cancel() {
+    if (_viewer) _viewer->setDone(true);
+    return 0;
 }
 
-void Viewer::unlock()
-{
-    myMutex.unlock();
+void ViewerThread::run() {
+    if (!_viewer) _viewer = new Viewer;
+    if (_viewer) _viewer->run();
 }
 
 // vim:ts=4:sw=4
